@@ -24,6 +24,9 @@ public class List {
 
     /** Returns the CharData of the first element in this list. */
     public CharData getFirst() {
+        if(first == null) {
+            return null;
+        }
         return first.cp;
     }
 
@@ -43,36 +46,35 @@ public class List {
     
     /** GIVE Textual representation of this list. */
     public String toString() {
-        String output = "(" + this.first.toString() + " ";
-        ListIterator liter = listIterator(0);
-        int cur = 1;
-        while (liter.hasNext()) {
-            output += liter.next().toString() + " ";
-            liter = listIterator(cur);
-            cur++;
+        if(first == null) {
+            return "()";
         }
-        // Removing the last space created
-        output.subSequence(0, output.length() - 1);
-        output += ")";
-        return output;
+        StringBuilder sb = new StringBuilder("(");
+        Node current = first;
+        int cur = 1;
+        while (current != null) {
+            sb.append(current.cp.toString());
+            if (current.next != null) {
+                sb.append(" ");
+            }
+            current = current.next;
+        }
+        sb.append(")");
+        return sb.toString();
     }
 
     /** Returns the index of the first CharData object in this list
      *  that has the same chr value as the given char,
      *  or -1 if there is no such object in this list. */
     public int indexOf(char chr) {
-        if(first.cp.equals(chr)) {
-            return 0;
-        }
+        Node cur = first;
         int index = 0;
-        ListIterator liter = listIterator(index);
-        // Node cur = first.next;
-        while (liter.hasNext()) {
-            index++;
-            if(liter.next().equals(chr)) {
+        while (cur != null) {
+            if(cur.cp.equals(chr)) {
                 return index;
             }
-            liter = listIterator(index);
+            cur = cur.next;
+            index++;
         }
         return -1;
     }
@@ -81,20 +83,24 @@ public class List {
      *  increments its counter. Otherwise, adds a new CharData object with the
      *  given chr to the beginning of this list. */
     public void update(char chr) {
-        if (indexOf(chr) == -1) {
-            addFirst(chr);
+        Node cur = first;
+        while(cur != null) {
+            if(cur.cp.equals(chr)) {
+                cur.cp.count++;
+                return;
+            }
+            cur = cur.next;
         }
-        else {
-            int index = indexOf(chr);
-            ListIterator liter = listIterator(index);
-            liter.current.cp.count++;
-        }
+        addFirst(chr);
     }
 
     /** GIVE If the given character exists in one of the CharData objects
      *  in this list, removes this CharData object from the list and returns
      *  true. Otherwise, returns false. */
     public boolean remove(char chr) {
+        if(first == null) {
+            return false;
+        }
         if(this.first.cp.equals(chr)) {
             this.first = this.first.next;
             return true;
